@@ -99,7 +99,9 @@ window.btoa = window.btoa || function () {
     store.remove("loggedInUser");
     $("#loggedInUser").remove();
     measure({event: "logout"});
-    location.reload();
+    setTimeout(function() {
+      location.reload();
+    }, 500);
   }
 
   init();
@@ -123,6 +125,7 @@ window.btoa = window.btoa || function () {
     this.reset();
   });
 
+  // Demo itself features
   $("#leadForm").on("submit", function(event) {
     var eventData;
 
@@ -143,7 +146,7 @@ window.btoa = window.btoa || function () {
 
     eventData = $(this).serializeObject();
     eventData.formId = "contactForm";
-    eventData.event = "contactFormSent";
+    eventData.event = "contactSent";
 
     measure(eventData);
     this.reset();

@@ -1,4 +1,4 @@
-/*global digitalData*/
+/*global digitalData,YT*/
 var digitalData = digitalData || {};
 digitalData._log = digitalData._log || [];
 
@@ -20,13 +20,20 @@ var measure = (function (measure) {
    * @param data {object} Object with data to measure
    */
   var measureInterface = function (data) {
+    var digitalDataSnapshot;
     if (typeof data.event !== "undefined") {
       measureInterface._fired = true;
       digitalData = measureInterface._deepMerge(digitalData, data);
+      digitalDataSnapshot = JSON.parse(JSON.stringify(digitalData));
+      delete digitalDataSnapshot._log;
+      debug("Event captured. Available data:");
+      debug(JSON.stringify(digitalDataSnapshot, null, 4));
+      debug("---------------------------------------------");
+      data._timestamp = new Date().getTime();
       digitalData._log.push(data);
       measureInterface._process(data);
     } else {
-      throw "Missing Action ID";
+      throw "Missing Event ID";
     }
   };
 
@@ -44,24 +51,10 @@ var measure = (function (measure) {
    * @private
    */
   measureInterface._deepMerge = function (target, src) {
-    var array = Array.isArray(src);
-    var dst = array && [] || {};
+    var isArray = Array.isArray(src);
+    var dst = isArray && src || {};
 
-    if (array) {
-      target = target || [];
-      dst = dst.concat(target);
-      src.forEach(function(e, i) {
-        if (typeof dst[i] === "undefined") {
-          dst[i] = e;
-        } else if (typeof e === "object") {
-          dst[i] = measureInterface._deepMerge(target[i], e);
-        } else {
-          if (target.indexOf(e) === -1) {
-            dst.push(e);
-          }
-        }
-      });
-    } else {
+    if (!isArray) {
       if (target && typeof target === "object") {
         Object.keys(target).forEach(function (key) {
           dst[key] = target[key];
@@ -95,56 +88,75 @@ var measure = (function (measure) {
    * @param data.username {String}
    */
   measureInterface._process = function (data) {
-    var digitalDataSnapshot;
-    digitalDataSnapshot = JSON.parse(JSON.stringify(digitalData));
-    delete digitalDataSnapshot._log;
-    debug("Event captured. Available data:");
-    debug(JSON.stringify(digitalDataSnapshot, null, 4));
-    debug("---------------------------------------------");
-    /*
     switch (data.event) {
     case "pageview":
-      if (data.error) {
-        //_paq.push(["setCustomDimension", 3, data.server]);
-        _paq.push(["setDocumentTitle",  data.error + "/URL = " +  encodeURIComponent(document.location.pathname + document.location.search) + "/From = " + encodeURIComponent(document.referrer)]);
-      }
-      _paq.push(["trackPageView"]);
+      // do nothing
       break;
     case "leadFormSent":
-      _paq.push(["trackEvent", "Lead Form", "submit", null, null, {dimension2: data.contact}]);
-      break;
     case "loginFormSent":
-      _paq.push(["trackEvent", "Login Form", "submit", null, null, {dimension1: data.username}]);
-      break;
     case "contactFormSent":
-      _paq.push(["trackEvent", "Contact Form", "submit", null, null, {dimension2: data["email"]}]);
-      break;
     case "fileDownload":
-      _paq.push(["trackEvent", "File Download", "click", data.fileName]);
-    break;
+      // do nothing
+      break;
     }
-    */
   };
   return measureInterface;
 }(measure));
-/*
-// Piwik Configuration
-var _paq = _paq || [];
-_paq.push(["setTrackerUrl", "//104.155.112.68/analytics/piwik.php"]);
-_paq.push(["setSiteId", 2]);
-_paq.push(["setCookieDomain", ".demogram.local"]);
-_paq.push(["setDomains", [".demogram.cz", ".demogram.local"]]);
-_paq.push(["removeDownloadExtensions", ["pdf", "doc", "docx", "xls", "xlsx"]]);
-_paq.push(["enableLinkTracking"]);
-(function() {
-  var d = document,
-    g = d.createElement("script"),
-    s = d.getElementsByTagName("script")[0];
 
-  g.type="text/javascript";
-  g.async=true;
-  g.defer=true;
-  g.src="/js/piwik.js";
-  s.parentNode.insertBefore(g, s);
+/*
+ * Init Youtube Iframe API
+ */
+(function() {
+  var tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  var firstScriptTag = document.getElementsByTagName("script")[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 })();
-*/
+
+
+/*
+ * Global Variable for available Youtube players
+ */
+var youtubePlayers = [],
+  youtubePlayerIframes = [];
+
+/*
+ * Refresh iframes without enabled API
+ */
+function refreshIframeAPI() {
+  for (var iframes = document.getElementsByTagName("iframe"), i = iframes.length; i--;) {
+    if (/youtube.com\/embed/.test(iframes[i].src)) {
+      youtubePlayerIframes.push(iframes[i]);
+      if (iframes[i].src.indexOf('enablejsapi=') === -1) {
+        iframes[i].src += (iframes[i].src.indexOf('?') === -1 ? '?' : '&') + 'enablejsapi=1';
+      }
+    }
+  }
+}
+
+function onYouTubeIframeAPIReady() {
+  refreshIframeAPI();
+  for (var i = 0; i < youtubePlayerIframes.length; i++) {
+    youtubePlayers.push(new YT.Player(youtubePlayerIframes[i], {
+      events: {
+        "onStateChange": onPlayerStateChange
+      }
+    }));
+  }
+}
+
+function onPlayerStateChange(event) {
+  var videoData;
+  videoData = event.target.getVideoData();
+  switch (event.data) {
+  case YT.PlayerState.PLAYING:
+    measure({event: "videoPlay", video: {id: videoData.video_id, title: videoData.title}});
+    break;
+  case YT.PlayerState.PAUSED:
+    measure({event: "videoPause", video: {id: videoData.video_id, title: videoData.title, timePlayed: event.target.getCurrentTime()}});
+    break;
+  case YT.PlayerState.ENDED:
+    measure({event: "videoEnd", video: {id: videoData.video_id, title: videoData.title, timePlayed: event.target.getCurrentTime()}});
+    break;
+  }
+}
