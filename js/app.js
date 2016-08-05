@@ -106,6 +106,29 @@ window.btoa = window.btoa || function () {
 
   init();
 
+  // EXTRA Features
+    function purchase() {
+      dataLayer.push({
+     'event': 'purchase',
+     'pageName': '/cz/get_offer/offer_send_mobile', //
+      'ecommerce': {
+        'purchase': {
+          'actionField': {
+            'id': 'T12345'                                              // Transaction ID. Required for purchases and refunds.
+          },
+          'products': [{                                                // List of productFieldObjects.
+            'name': 'x19_sleva_na_vas_napoj_ve_starbucks_1#535663',     // Name or ID is required.
+            'id': '535663',
+            'brand': 'Starbucks',
+            'category': 'Food',
+            'variant': 'soyka'
+           }]
+        }
+      }
+    });
+    $("#purchase").on("click", purchase);
+  }
+
   // Demo itself features
   $("#loginForm").on("submit", function(event) {
     var eventData;
