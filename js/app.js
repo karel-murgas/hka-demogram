@@ -127,7 +127,86 @@ window.btoa = window.btoa || function () {
       }
     });
     $("#purchase").on("click", purchase);
+  } 
+  
+    function impression() {
+      dataLayer.push({
+        'ecommerce': {
+          'impressions': [
+           {
+             'name': 'x20_sleva_na_1_knihu_dle_vlastni#521604',       // Name or ID is required.
+             'id': '521604',
+             'brand': 'Neoluxor',
+             'category': 'Shopping',
+             'variant': 'vip',
+             'list': 'Shopping',
+             'position': 0
+           }]
+        }
+      });
+    $("#impression").on("click", impression);
   }
+  
+   function click() {
+    dataLayer.push({
+        'event': 'productClick',
+        'ecommerce': {
+            'click': {
+                'actionField': {
+                    'list': 'Bannery'
+                },
+                'products': [{
+                    'name': '25% sleva na předplatné týdeníku TÉMA - pořídíte i na Štědrý den#545340',
+                    'id': '545340',
+                    'brand': 'mafra',
+                    'category': 'Nákupy',
+                    'position': 1
+                }]
+            }
+        }
+    });
+    $("#click").on("click", click);
+  }
+  
+     function detail() {
+      dataLayer.push({
+      'event': 'detail',
+        'ecommerce': {
+          'detail': {
+                  'products': [{
+                      'name': '25% sleva na předplatné týdeníku TÉMA - pořídíte i na Štědrý den#545340',
+                      'id': '545340',
+                      'brand': 'mafra',
+                      'category': 'Nákupy',
+                      'position': 1,
+             }]
+           }
+         }
+      });
+    $("#detail").on("click", detail);
+  }
+  
+       function checkout() {
+        dataLayer.push({
+          'event': 'checkout',
+          'pageName': '/cz/get_offer/verify_number',
+          'ecommerce': {
+            'checkout': {
+              'actionField': {'step': 1},
+              'products': [{
+                'name': 'x19_sleva_na_vas_napoj_ve_starbucks_1#535663',
+                'id': '535663',
+                'brand': 'Starbucks',
+                'category': 'Food',
+                'variant': 'soyka',
+                'quantity': 1
+             }]
+           }
+         }
+        });
+    $("#checkout").on("click", checkout);
+  }
+  
 
   // Demo itself features
   $("#loginForm").on("submit", function(event) {
