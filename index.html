@@ -45,7 +45,71 @@
     <script type='text/javascript'>var digitalData = digitalData || {};</script>
     <script src="//assets.adobedtm.com/eaf07652005ffd09e7f3341ced093742164cb81e/satelliteLib-74ecfdff68ddbe20794ab1658fd9d957a79a93cf.js"></script>
   </head>
+
   <body>
+  
+    <!-- Odol's toys -->
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T2NJSWF');</script>
+    <!-- End Google Tag Manager -->
+    
+    <!-- Define function called by visitorAPI.js -->
+    <script>
+      function measure(data){
+        data = data || {};
+        if (data.event == 'init') {
+          visitorApi = data;
+        }
+        console.log(data);
+      }
+    <script>
+    
+    <!-- Sets 3rd party cookie and returns some values -->
+    <script src="http://dmp.417.cz/visitorAPI.js" type="text/javascript"></script>
+    
+    <!-- To track users without js -->
+    <noscript></noscript>
+    
+    <!-- Tracking of nontrackable -->
+    <script>
+      trackedData = {
+        cookieType: '',
+        gaBlocked: '',
+        gtmBlocked: '',
+        jsBlocked: False,
+        domain: 'hka.demogram.cz'    
+      }
+    </script>
+
+    <!-- GA + GTM tracking blocked tracking>    
+    <script&nbsp;type="text/javascript">
+    	window.addEventListener('load', function(){
+    		if(window.ga && ga.create) 
+    		{
+    			console.log('Google Analytics is loaded');
+    		} 
+    		else 
+    		{
+    			console.log('Google Analytics is not loaded');    
+    		}
+          
+    		if(window.google_tag_manager)
+    		{
+    			console.log('Google Tag Manager is loaded');
+    		}
+    		else
+    		{
+    			console.log('Google Tag Manager is not loaded');
+    		}
+    	}, false);
+    </script>
+    <!-- End of Odol's toys -->
+  
+ 
     <div role="navigation" class="navbar navbar-default">
       <div class="container">
         <div class="navbar-header">
